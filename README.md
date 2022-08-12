@@ -1,4 +1,4 @@
-# tarefa-Mapty
+# Mapty
 Tarefa acadêmica de um site onde podemos registrar no mapa a realização de atividades físicas.
 
 Criado com JavaScript, HTML e CSS.
