@@ -1,0 +1,506 @@
+// // Seção 15: Mapty App: OOP, Geolocation, External Libraries, and more!
+
+// // -> HOW TO PLAN A WEB PROJECT
+
+// // Quando formos construir um projeto do zero precisamos sempre começar pela fase de planejamento.
+
+// // O conceito de User Stories é bastante usado e é muito bom para pequenos e médios projetos: é basicamente uma descrição da funcionalidade da aplicação da perspectiva do usuário. É uma visão geral de alto nível de toda a aplicação, que ajuda a determinar os recursos que precisarão ser implementados. Então, para vizualisarmos as diferentes ações que os usuários podem tomar e como o programa reage a essas ações, fazemos um Flow Chart. Então pensamos como iremos construir essa aplicação, na arquitetura do nosso projeto. Somente aí podemos passar para a fase de desenvolvimento, onde escrevemos o código em si.
+
+// // User Stories: um formato comum que podemos usar para criar user stories é "As a [type of user], i want [an action] so that [a benefit].", que responde a pergunta Quem?, O Quê? e Por Quê?
+
+// // No exemplo do nosso aplicativo fica: Como um usuário, quero registrar meus exercícios com localidade, distância, tempo, ritmo e passos por minuto, para que eu possa manter um registro de todas minhas corridas. Podemos fazer diversos user stories com diversos tipos de usuários em mente diferentes e com objetivos diferentes.
+
+// // Features: a partir do user stories podemos começar a pensar nos recursos que precisaremos no desenvolvimento do aplicativo. No nosso aplicativo, precisaremos de um mapa para registrar a localidade dos exercícios, de geolocalização para localizar a posição do usuário, também precisaremos de um formulário em que será preenchido com os dados dos exercícios, etc.
+
+// // FlowChart: a partir dos features podemos criar a flowchart que será uma previsão dos caminhos possíveis que o usuário poderá tomar ao usar o aplicativo. É normal não pensar em todos os passos da flowchart no começo do projeto, pode ser construída com mais detalhes no decorrer do projeto.
+
+// // Arquitetura: assim como no flowchart, não precisamos, já de cara, desenvolver uma arquitetura completa, vamos desenvolvendo-a no decorrer do projeto. No nosso aplicativo vamos começar a escrever o código, mas assim que precisamos de uma maior orgnaização vamos desenvolver e pensar na arquitetura do projeto.
+
+// // -> USING THE GEOLOCATION API
+
+// // O Geolocation API é um API do Browser, como timers ou internationalization. Também temos brosers API que usam a câmera do usuário ou que fazem o celular vibrar.
+
+// navigator.geolocation.getCurrentPosition(
+//   function (position) {
+//     const { latitude } = position.coords;
+//     const { longitude } = position.coords;
+//     console.log(`https://www.google.com.br/maps/@${latitude},${longitude}`);
+//   },
+//   function () {
+//     alert('Could not get your position');
+//   }
+// );
+
+// // No exemplo acima usamos a função navigator.geolocation.getCurrentPosition() e nela temos duas funções como parâmetros. A primeira será executada caso o browser consiga as coordenadas do usuário e a segunda caso o browser não consiga as coordenadas.
+
+// // -> DISPLAYING A MAP USING LEAFLET LIBRARY
+
+// // Leaflet é uma biblioteca third party que podemos usar para mostrar o mapa. Incorporaremos essa biblioteca no nosso código usando o método de Hosted Version, onde copiamos o código disponibilizado no site no nosso arquivo html, antes do script.js ser carregado e sempre colocando o atributo defer logo após "<script" pois a ordem em que o script é carregado nesse caso é muito importante.
+
+// // Para realmente usarmos a biblioteca temos que usar as funçÕes e methods definidos na própria biblioteca. OBS: As variáveis dessa biblioteca estarão disponíveis para todos os códigos atrelados à biblioteca, desde que esses outros scripts sejam carregados depois (herança).
+
+// if (navigator.geolocation)
+//   navigator.geolocation.getCurrentPosition(
+//     function (position) {
+//       const { latitude } = position.coords;
+//       const { longitude } = position.coords;
+
+//       const coords = [latitude, longitude];
+
+//       const map = L.map('map').setView(coords, 13);
+
+//       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//         attribution:
+//           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+//       }).addTo(map);
+
+//       L.marker(coords)
+//         .addTo(map)
+//         .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+//         .openPopup();
+//     },
+//     function () {
+//       alert('Could not get your position');
+//     }
+//   );
+
+// // Em L.tileLayer() estamos usando openstreetmap que é um código open source de mapas e onde podemos escolher diversos estilos de mapas.
+
+// // -> DISPLAYING A MAP MARKER
+
+// // Não podemos simplesmente adicionar um event handler em todo o elemento do mapa pois assin não saberíamos onde exatamente o usuário clicou no mapa, as coordenadas do gps do local que foi clicado. Por isso vamos usar um event handler provido pelo leaflet. É para isso que estamos usando a variável map para guardar as informações da localidade mostrada no mapa:
+
+// map.on('click', function (mapEvent) {
+//   const { lat, lng } = mapEvent.latlng;
+//   L.marker([lat, lng])
+//     .addTo(map)
+//     .bindPopup(
+//       L.popup({
+//         maxWidth: 250,
+//         minWidth: 100,
+//         autoclose: false,
+//         closeOnClick: false,
+//         className: 'running-popup',
+//       })
+//     )
+//     .setPopupContent('Workout')
+//     .openPopup();
+// });
+
+// // Acima temos um exemplo da marcação no mapa usando o que a documentação do leaflet nos diz para podermos customizar as marcações. Abaixo o código acima estará inserido dentro do resto do código do leaflet no nosso aplicativo:
+
+// // -> RENDERING WORKOUT INPUT FORM
+
+// let map, mapEvent;
+
+// map.on('click', function (mapE) {
+//   mapEvent = mapE;
+//   form.classList.remove('hidden');
+//   inputDistance.focus();
+// });
+
+// form.addEventListener('submit', function (e) {
+//   e.preventDefault();
+//   inputDistance.value =
+//     inputDuration.value =
+//     inputCadence.value =
+//     inputElevation.value =
+//       '';
+//   const { lat, lng } = mapEvent.latlng;
+//   L.marker([lat, lng])
+//     .addTo(map)
+//     .bindPopup(
+//       L.popup({
+//         maxWidth: 250,
+//         minWidth: 100,
+//         autoClose: false,
+//         closeOnClick: false,
+//         className: 'running-popup',
+//       })
+//     )
+//     .setPopupContent('Workout')
+//     .openPopup();
+// });
+
+// inputType.addEventListener('change', function () {
+//   inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+//   inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+// });
+
+// // -> PROJECT ARCHITECTURE
+
+// // Vamos usar OOP (Object Oriented Classes) para organizar o nosso código. No nosso aplicativo a nossa estrutura principal virá de classes e objetos.
+
+// // Um dos aspectos mais importantes relacionados a arquitetura de um projeto é decidir onde e como os dados serão armazenados. Os dados são a parte mais fundamental de qualquer aplicação.
+
+// // Do user stories vemos que, por exemplo, teremos que armazenar os dados de localidade, distância, tempo, ritmo e cadência, além de outros. Considerando que temos dois tipos de exercícios possíveis em nosso aplicativo (corrida e bicicleta), teremos uma classe principal (Workout) que terá dados que os dois tipos de exercícios irão compartilhar, mas teremos classes mais específicas para exercício com seus dados específicos.
+
+// // A partir do nosso flowchart também temos as ações que precisam ser feitas em nosso código para que o aplicativo funcione. A partir delas vamos criar uma grande classe chamada App que irá conter todas essas funções como methods.
+
+// // -> REFACTORIGN FOR PROJECT ARCHITECTURE
+
+// // Vamos implementar a classe App:
+
+// class App {
+//   #map;
+//   #mapEvent;
+//   constructor() {
+//     this._getPosition();
+//     form.addEventListener('submit', this._newWorkout.bind(this));
+//     inputType.addEventListener('change', this._toggleElevationField);
+//   }
+
+//   _getPosition() {
+//     if (navigator.geolocation)
+//       navigator.geolocation.getCurrentPosition(
+//         this._loadMap.bind(this),
+//         function () {
+//           alert('Could not get position!');
+//         }
+//       );
+//   }
+
+//   _loadMap(position) {
+//     const { latitude } = position.coords;
+//     const { longitude } = position.coords;
+
+//     const coords = [latitude, longitude];
+
+//     this.#map = L.map('map').setView(coords, 14);
+
+//     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+//       attribution:
+//         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+//     }).addTo(this.#map);
+//     this.#map.on('click', this._showForm.bind(this));
+//   }
+//   _showForm(mapE) {
+//     this.#mapEvent = mapE;
+//     form.classList.remove('hidden');
+//     inputDistance.focus();
+//   }
+
+//   _toggleElevationField() {
+//     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+//     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+//   }
+
+//   _newWorkout(e) {
+//     e.preventDefault();
+//     inputDistance.value =
+//       inputDuration.value =
+//       inputCadence.value =
+//       inputElevation.value =
+//         '';
+//     const { lat, lng } = this.#mapEvent.latlng;
+//     L.marker([lat, lng])
+//       .addTo(this.#map)
+//       .bindPopup(
+//         L.popup({
+//           maxWidth: 250,
+//           minWidth: 100,
+//           autoClose: false,
+//           closeOnClick: false,
+//           className: 'running-popup',
+//         })
+//       )
+//       .setPopupContent('Workout')
+//       .openPopup();
+//   }
+// }
+
+// const app = new App();
+
+// // -> MANAGING WORKOUT DATA: CREATING CLASSES
+
+// // Vamos implementar classes para gerir os dados sobre os exercícios de corrida e de bicicleta que estão vindo da interface do usuário.
+
+// // Implementaremos a classe-pai da classe dos exercícios:
+
+// class Workout {
+//   date = new Date();
+//   id = (Date.now() + '').slice(-10);
+
+//   constructor(coords, distance, duration) {
+//     this.coords = coords;
+//     this.distance = distance;
+//     this.duration = duration;
+//   }
+// }
+
+// class Running extends Workout {
+//   constructor(coords, distance, duration, cadence) {
+//     super(coords, distance, duration);
+//     this.cadence = cadence;
+//     this.calcPace();
+//   }
+//   calcPace() {
+//     this.pace = this.duration / this.distance;
+//     return this.pace;
+//   }
+// }
+
+// class Cycling extends Workout {
+//   constructor(coords, distance, duration, elevationGain) {
+//     super(coords, distance, duration);
+//     this.elevationGain = elevationGain;
+//     this.calcSpeed();
+//   }
+//   calcSpeed() {
+//     this.speed = this.distance / (this.duration / 60);
+//     return this.speed;
+//   }
+// }
+
+// // -> CREATING A NEW WORKOUT
+
+// // Usando as classes workout que acabamos de criar, vamos implementar o recurso de criar um novo workout usando a interface de usuário. Na classe de App, no method _newWorkout:
+
+// #workouts = []; // Esse código na classe App
+
+// e.preventDefault();
+
+// const validInputs = (...inputs) => inputs.every(inp => Number.isFinite(inp));
+// const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+
+// const type = inputType.value;
+// const distance = +inputDistance.value;
+// const duration = +inputDuration.value;
+// const { lat, lng } = this.#mapEvent.latlng;
+// let workout;
+
+// if (type === 'running') {
+//   const cadence = +inputCadence.value;
+//   if (
+//     !validInputs(distance, duration, cadence) ||
+//     !allPositive(distance, duration, cadence)
+//   )
+//     return alert('Inputs have to be positive numbers!');
+
+//   workout = new Running([lat, lng], distance, duration, cadence);
+// }
+
+// if (type === 'cycling') {
+//   const elevation = +inputElevation.value;
+//   if (
+//     !validInputs(distance, duration, elevation) ||
+//     !allPositive(distance, duration)
+//   )
+//     return alert('Inputs have to be positive numbers!');
+//     workout = new Cycling([lat, lng], distance, duration, elevation)
+// }
+
+// this.#workouts.push(workout);
+// this.renderWorkoutMarker(workout);
+
+// _renderWorkoutMarker(workout) {  // Criando um method
+//     L.marker(workout.coords).addTo(this.#map).bindPopup(L.popup({maxWidth: 250, minWidth: 100, autoClose: false, closeOnClock: false, className: `${workout.type}-popup`,})).setPopupContent(workout.distance).openPopup();
+// }
+
+
+// // Na classe de Cycling e Running, antes de constructor:
+
+// class Running extends Workout {
+//     type = 'running';
+
+// class Cycling extends Workout {
+//     type = 'cycling';
+
+
+// // -> RENDERING WORKOUTS
+
+// // Primeiramente vamos criar um novo method na classe App e que será chamado pelo method _newWorkout:
+
+// this._renderWorkout(workout) // No Method _newWorkout
+
+// _renderWorkout(workout) {
+//   let html = `
+//     <li class="workout workout--${workout.type}" data-id="${workout.id}">
+//             <h2 class="workout__title">${workout.description}</h2>
+//             <div class="workout__details">
+//               <span class="workout__icon">${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'}</span>
+//               <span class="workout__value">${workout.distance}</span>
+//               <span class="workout__unit">km</span>
+//             </div>
+//             <div class="workout__details">
+//               <span class="workout__icon">⏱</span>
+//               <span class="workout__value">${workout.duration}</span>
+//               <span class="workout__unit">min</span>
+//             </div>
+//             `;
+//             if (workout.type === 'running') 
+//               html + `
+//               <div class="workout__details">
+//               <span class="workout__icon">⚡️</span>
+//               <span class="workout__value">${workout.pace.toFixed(1)}</span>
+//               <span class="workout__unit">min/km</span>
+//             </div>
+//             <div class="workout__details">
+//               <span class="workout__icon">🦶🏼</span>
+//               <span class="workout__value">${workout.cadence}</span>
+//               <span class="workout__unit">spm</span>
+//             </div>
+//             </li>
+//             `;
+//             if (workout.type === 'cycling')
+//             html += `
+//             <div class="workout__details">
+//             <span class="workout__icon">⚡️</span>
+//             <span class="workout__value">${workout.speed.toFixed(1)}</span>
+//             <span class="workout__unit">km/h</span>
+//           </div>
+//           <div class="workout__details">
+//             <span class="workout__icon">⛰</span>
+//             <span class="workout__value">${workout.elevationGain}</span>
+//             <span class="workout__unit">m</span>
+//           </div>
+//           </li>
+//             `;
+
+//             form.insertAdjacentHTML('afterend', html);
+// }
+
+// // Para gerar a string a ser mostrada no código acima, no título da barra de workout, criaremos um novo method na classe Workout:
+
+// _setDescription() {
+//   // prettier-ignore
+//   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  
+//   this.description = `${this.type[0].toUppercase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
+// }
+
+// // Depois disso devemos colocar this.setDescription() no constructor de cada child-class:
+
+// class Running extends Workout {
+//   type = 'running';
+//   constructor(coords, distance, duration, cadence) {
+//     super(coords, distance, duration);
+//     this.cadence = cadence;
+//     this.calcPace();
+//     this._setDescription();
+//   }
+// }
+
+// // Vamos criar mais um method na classe App para esconder o formulário quando não estivermos adicionando informações sobre exercícios:
+
+// _hideForm() {
+//   inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value = '';
+//   form.style.display = 'none';
+//   form.classList.add('hidden');
+//   setTimeout(() => form.style.display = 'grid', 1000);
+// }
+
+// // -> MOVE TO MARKER ON CLICK
+
+// // Vamos implementar a função de mover o para para a localização da marcação quando clicamos na marcação na barra do lado.
+
+// containerWorkouts.addEventListener('click', this._moveToPopup.bind(this)); // No container da classe App
+
+// // Agora criando um method na classe App:
+
+// _moveToPopup(e) {
+//   const workoutEl = e.target.closest('.workout');
+
+//   if (!workoutEl) return;
+
+//   const workout = this.#workouts.find(work => work.id === workoutEl.dataset.id);
+
+//   this.#map.setView(workout.coords, this.#mapZoomLevel, {
+//     animate: true,
+//     pan: {
+//       duration: 1
+//     }
+//   }) 
+// }
+
+// // -> WORKING WITH LOCALSTORAGE
+
+// // Vamos usar o API LocalStore para armazenarmos os dados do nosso aplicativo.
+
+// // No method _newWorkout:
+// this._setLocalStorage();
+
+// // Criando o method _setLocalStorage:
+
+// _setLocalStorage() {
+//   localStorage.setItem('workouts',  JSON.stringify(this.#workouts))
+// }
+
+// // Com a função JSON.stringify() transformamos um objeto em string.
+
+// // No constructor da classe App (onde o nosso aplicativo é incializado) vamos fazer o carregamento dos dados salvos:
+
+// this._getLocalStorage();
+
+// // Criando o method:
+
+// _getLocalStorage() {
+//   const data = JSON.parse(localStorage.getItem('workouts'));
+
+//   if (!data) return;
+
+//   this.#workouts = data;
+//   this.#workouts.forEach(work => {
+//     this._renderWorkout(work);
+//   })
+// }
+
+// // JSON.parse() transforma uma string em um objeto. OBS: Quando transformamos objetos em strings e os tranformamos de volta em objetos, esse objeto perde a sua herança de methods.
+
+// // Como uma marcação só pode ser mostrada no mapa depois do mapa ter sido totalmente carregado, e o carregamento dos dados acontece bem no começo, precisamos fazer com que os dados só possam ser carregados após o carregamento do mapa:
+
+// // No method _loadMap:
+
+// this.#workouts.forEach(work => {
+//   this._renderWorkout(work);
+//   this._renderWorkoutMarker(work);
+// })
+
+// // Vamos criar um method para limpar os dados do local storage:
+
+// reset() {
+//   localStorage.removeItem('workouts');
+//   location.reload()
+// }
+
+// // -> FINAL CONSIDERATIONS
+
+// // Implementar a habilidade de editar, deletar e deletar todos os exercícios.
+// // Implementar a habilidade de ordenar os exercícios por distância, duração, etc.
+// // Reconstruir os objetos running e cycling que estão vindo do local storage (que perderam sua natureza de objeto running ou cycling)
+// // Implementar mensagens de erro e confirmação mais realistas.
+// // Adicionar a habilidade de posicionar o mapa para mostrar todos os exercícios (um botão). Dependerá da leitura da documentação do Leaflet.
+// // Adicionar a habilidade de desenhar linhas e formas ao invés de somente pontos no mapa.
+
+
+// _workoutEdit(e) {
+//   const workoutEditEl = e.target.closest('.workout');
+//   const workoutEdit = this.#workouts.find(
+//     work => work.id === workoutEditEl.dataset.id
+//   );
+//   let distance = prompt('Distance: ');
+//   while (distance === null) distance;
+//   let duration = prompt('Duration: ');
+//   if (duration === null) duration = workoutEdit.duration;
+//   workoutEdit.distance = distance;
+//   workoutEdit.duration = duration;
+
+//   if (workoutEdit.type === 'running') {
+//     let cadence = prompt('Cadence: ');
+//     if (cadence === null) workoutEdit.cadence = cadence;
+//     workoutEdit.cadence = cadence;
+//     let pace = duration / cadence;
+//     workoutEdit.pace = pace;
+
+//     if (workoutEdit.type === 'cycling') {
+//     }
+
+//     this.#workouts.forEach((workout, index) => {
+//       if (workout.id === workoutEdit.id) {
+//         this.#workouts.splice(index, 1, workoutEdit);
+//         this._setLocalStorage();
+//         window.location.reload();
+//       }
+//     });
+//   }
+// }
